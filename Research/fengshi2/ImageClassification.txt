@@ -1,0 +1,29 @@
+https://towardsdatascience.com/image-classification-python-keras-tutorial-kaggle-challenge-45a6332a58b8
+
+Part 1: Format Custom Image Data to Input to Keras Model:
+I. We loop through the images which are currently named as ‘id.jpg’
+II. strip the .jpg from them
+III. Match them with the breed from the naming dictionary.
+IV. We will then name them based on how many of this breed we have already counted
+V. Finally, increment the count with this new instance.
+
+Loading Data into Keras Model
+one-hot vector encoding
+def label_img(name):
+  word_label = name.split('-')[0]
+  if word_label == 'golden_retriever' : return np.array([1, 0])
+  elif word_label == 'shetland_sheepdog' : return np.array([0, 1])
+
+Resizing Images
+
+Loading Images
+
+Part 2: Simple CNN:
+
+Part 3: Improving the Model:
+I. Adding more Dropout Layers
+II. Convolutional Network Parameters
+III. Altering the Multi-Layer Feed-Forward NN at the end of the network
+IV. Data Augmentation
+V. Dog Object Detection Cropping
+
