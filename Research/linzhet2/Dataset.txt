@@ -1,0 +1,3 @@
+https://www.kaggle.com/aidapearson/ocr-data
+https://www.kaggle.com/clarencezhao/handwritten-math-symbol-dataset
+https://www.kaggle.com/xainano/handwrittenmathsymbols
