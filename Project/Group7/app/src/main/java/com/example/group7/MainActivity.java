@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
         int size = bmp.getRowBytes() * bmp.getHeight();
         byteBuffer = ByteBuffer.allocate(size);
+        analyzeImage(findViewById(R.id.textView));
     }
     public void analyzeImage(View view) {
         try {

@@ -1,7 +1,18 @@
 package com.example.group7;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
@@ -13,17 +24,11 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.LifecycleOwner;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
+
+import android.content.DialogInterface;
+
+import androidx.lifecycle.LifecycleOwner;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -35,6 +40,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+
+
 public class LaunchActivity extends AppCompatActivity {
     private final int REQUEST_CODE_PERMISSIONS = 1001;
     private final String[] REQUIRED_PERMISSIONS = new String[]{"android.permission.CAMERA"};
@@ -42,24 +49,19 @@ public class LaunchActivity extends AppCompatActivity {
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
     Executor cameraExecutor = Executors.newSingleThreadExecutor();
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        // Portion where camera's view is displayed must be a PreviewView element.
-        // Replace R.id.cameraFeed with the name of our PreviewView's name (ie R.id.elementName)
+        setContentView(R.layout.activity_launch);
         cameraFeed = findViewById(R.id.cameraFeed);
 
-        setContentView(R.layout.activity_main);
-        // Uses helper functions to get user's permission to use device camera
+        super.onCreate(savedInstanceState);
+
+
         if (allPermissionsGranted()) {
-            startCamera(); // Start camera if permission has been granted by user
+            startCamera(); //start camera if permission has been granted by user
         } else {
             ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
         }
-
-
     }
 
     private void startCamera() {
@@ -77,7 +79,6 @@ public class LaunchActivity extends AppCompatActivity {
     }
 
     public void bindPreview(ProcessCameraProvider cameraProvider) {
-        // Code for setting PreviewView element to display the camera device
         Preview preview = new Preview.Builder()
                 .build();
 
@@ -87,23 +88,18 @@ public class LaunchActivity extends AppCompatActivity {
 
         preview.setSurfaceProvider(cameraFeed.getSurfaceProvider());
 
-        // Code for sending captured image to next activity when user preses the capture button
         ImageCapture imageCapture = new ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 .setTargetRotation(getWindowManager().getDefaultDisplay().getRotation())
                 .build();
 
-        // Function that directly connects the action of the button being clicked with an image
-        // subsequently being captured and sent to the next activity
-        // Replace R.id.capture_button with the name of our PreviewView's name (ie R.id.elementName)
         findViewById(R.id.capture_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 imageCapture.takePicture(cameraExecutor, new ImageCapture.OnImageCapturedCallback() {
-                    // The file format of the image captured is a ImageProxy
                     @Override
                     public void onCaptureSuccess(ImageProxy image) {
-                        // Conver to bitmap
+                        // Create Bitmap
                         Bitmap bm = getBitMap(image);
                         // Store in temporary file path
                         String filePath= tempFileImage(LaunchActivity.this.getApplicationContext(), bm, "name");
@@ -114,10 +110,10 @@ public class LaunchActivity extends AppCompatActivity {
                         image.close();
                     }
 
-                    // For handing errors, this should never be reached.
                     @Override
                     public void onError(ImageCaptureException exception) {
                         Log.e("Launch Activity", "ImageCaptureException");
+
                     }
                 });
 
@@ -127,7 +123,7 @@ public class LaunchActivity extends AppCompatActivity {
         Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner) this, cameraSelector, imageCapture, preview);
 
     }
-    // Helper functions for requesting permission for camera use
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         //start camera when permissions have been granted otherwise exit app
@@ -151,7 +147,6 @@ public class LaunchActivity extends AppCompatActivity {
         return true;
     }
 
-    // Helper function for bindPreview()
     // Converts from ImageProxy to BitMap
     private Bitmap getBitMap(ImageProxy image) {
         ImageProxy.PlaneProxy planeProxy = image.getPlanes()[0];
@@ -162,8 +157,7 @@ public class LaunchActivity extends AppCompatActivity {
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
     }
 
-    // Helper function for bindPreview()
-    // Creates a temporary file and returns the absolute file path
+    // Creates a temporary file and return the absolute file path
     private static String tempFileImage(Context context, Bitmap bitmap, String name) {
 
         File outputDir = context.getCacheDir();
@@ -181,4 +175,5 @@ public class LaunchActivity extends AppCompatActivity {
 
         return imageFile.getAbsolutePath();
     }
+
 }
