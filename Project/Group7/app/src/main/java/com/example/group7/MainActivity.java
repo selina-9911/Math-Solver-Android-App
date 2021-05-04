@@ -35,6 +35,7 @@ import org.tensorflow.lite.support.image.TensorImage;
 import org.tensorflow.lite.support.image.ops.ResizeOp;
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
+import java.io.Console;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -67,22 +68,6 @@ public class MainActivity extends AppCompatActivity {
     }
     public void analyzeImage(View view) {
         try {
-//            // Converts bitmap captured by camera into a TensorImage
-//            TensorImage tfImage = new TensorImage(DataType.FLOAT32);
-//            tfImage.load(bmp);
-//
-//            // Build ImageProcessor object
-//            ImageProcessor imageProcessor = new ImageProcessor.Builder().
-//                    add(new ResizeOp(224, 224, ResizeOp.ResizeMethod.BILINEAR)).
-//                    build();
-//            tfImage = imageProcessor.process(tfImage);
-//
-//            // Code copied directly from sample. To view it, open your .tflite within Android Studio
-//            // Make sure to import the correct Model class! Should be along the lines of something
-//            // like com.example.projectname.ml
-//            Model model = Model.newInstance(view.getContext());
-//            Model.Outputs outputs = model.process(tfImage);
-
             // Creates inputs for reference.
             TensorBuffer inputFeature0 = TensorBuffer.createFixedSize(new int[]{1, 224, 224, 3}, DataType.FLOAT32);
             inputFeature0.loadBuffer(byteBuffer);
@@ -91,7 +76,10 @@ public class MainActivity extends AppCompatActivity {
             Model model = Model.newInstance(view.getContext());
             Model.Outputs outputs = model.process(inputFeature0);
             TensorBuffer outputFeature0 = outputs.getOutputFeature0AsTensorBuffer();
-
+            int [] converted = outputFeature0.getIntArray();
+            for (int i: converted) {
+                Log. d("Main Activity", String.valueOf(i));
+            }
             // Releases model resources if no longer used.
             model.close();
 
