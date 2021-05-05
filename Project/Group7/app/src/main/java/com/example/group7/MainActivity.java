@@ -65,11 +65,15 @@ public class MainActivity extends AppCompatActivity {
         String filePath = extras.getString("path");
         File file = new File(filePath);
         bmp = BitmapFactory.decodeFile(file.getAbsolutePath());
-        int width = bmp.getWidth();
-        int height = bmp.getHeight();
-
-        int size = bmp.getRowBytes() * bmp.getHeight();
+        ImageProcessor imageProcessor =
+                new ImageProcessor.Builder()
+                        .add(new ResizeOp(224, 224, ResizeOp.ResizeMethod.BILINEAR))
+                        .build();
+        TensorImage tImage = new TensorImage(DataType.UINT8);
+        tImage.load(bmp);
+        tImage = imageProcessor.process(tImage);
         byteBuffer = ByteBuffer.allocate(3*224*224*4);
+        tImage.getBitmap().copyPixelsToBuffer(byteBuffer);
         analyzeImage(findViewById(R.id.textView));
     }
 
