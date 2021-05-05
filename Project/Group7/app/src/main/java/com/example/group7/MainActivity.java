@@ -54,11 +54,13 @@ public class MainActivity extends AppCompatActivity {
 
     Bitmap bmp;
     ByteBuffer byteBuffer;
+    private TextView tv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        tv = (TextView) findViewById(R.id.textView);
 
 
         // Get file path from Intent and use it to retrieve Bitmap (image to analyze)
@@ -66,46 +68,57 @@ public class MainActivity extends AppCompatActivity {
         String filePath = extras.getString("path");
         File file = new File(filePath);
         bmp = BitmapFactory.decodeFile(file.getAbsolutePath());
-        int width = bmp.getWidth();
-        int height = bmp.getHeight();
-
-        int size = height > width ? width : height;
-        ImageProcessor imageProcessor =
-                new ImageProcessor.Builder()
-                        .add(new ResizeWithCropOrPadOp(size, size))
-                        .add(new ResizeOp(224, 224, ResizeOp.ResizeMethod.BILINEAR))
-                        .build();
-        TensorImage tImage = new TensorImage(DataType.UINT8);
-        tImage.load(bmp);
-        tImage = imageProcessor.process(tImage);
-        byteBuffer = ByteBuffer.allocate(3*224*224*4);
-        tImage.getBitmap().copyPixelsToBuffer(byteBuffer);
         analyzeImage(findViewById(R.id.textView));
     }
 
 
     public void analyzeImage(View view) {
+        bmp = Bitmap.createScaledBitmap(bmp, 224, 224, true);
         try {
+            Model model = Model.newInstance(getApplicationContext());
+
             // Creates inputs for reference.
             TensorBuffer inputFeature0 = TensorBuffer.createFixedSize(new int[]{1, 224, 224, 3}, DataType.FLOAT32);
+
+            TensorImage tensorImage = new TensorImage(DataType.FLOAT32);
+            tensorImage.load(bmp);
+            ByteBuffer byteBuffer = tensorImage.getBuffer();
+
             inputFeature0.loadBuffer(byteBuffer);
 
             // Runs model inference and gets result.
-            Model model = Model.newInstance(view.getContext());
             Model.Outputs outputs = model.process(inputFeature0);
             TensorBuffer outputFeature0 = outputs.getOutputFeature0AsTensorBuffer();
             float[] converted = outputFeature0.getFloatArray();
-            String text = Arrays.toString(converted);
+            int index = findLargestIndex(converted);
+            String text = matchSymbol(index);
 
             // Releases model resources if no longer used.
             model.close();
-            final TextView helloTextView = (TextView) findViewById(R.id.textView);
-            helloTextView.setText(text);
 
+            tv.setText(text);
 
-        } catch(IOException e) {
+        } catch (IOException e) {
             Log.e("MainActivity", "IOException");
         }
+    }
+
+    public int findLargestIndex(float[] array) {
+        if (array == null) {
+            return -1;
+        }
+        int max = 0;
+        for (int i = 0; i< array.length; i++) {
+            if (array[max] < array[i]) {
+                max = i;
+            }
+        }
+        return max;
+    }
+
+    public String matchSymbol(int index) {
+        String[] symbolArray = new String[] {".","÷","8","=","5","4", "-","9","1","+","7","6","3", "×","2","0"};
+        return symbolArray[index];
     }
 }
 
