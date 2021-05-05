@@ -1,6 +1,5 @@
 package com.example.group7;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
@@ -30,10 +29,12 @@ import android.widget.Toast;
 import com.example.group7.ml.Model;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.support.image.ImageProcessor;
 import org.tensorflow.lite.support.image.TensorImage;
 import org.tensorflow.lite.support.image.ops.ResizeOp;
+import org.tensorflow.lite.support.image.ops.ResizeWithCropOrPadOp;
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
 import java.io.Console;
@@ -53,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
     Bitmap bmp;
     ByteBuffer byteBuffer;
-    String text;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,8 +66,13 @@ public class MainActivity extends AppCompatActivity {
         String filePath = extras.getString("path");
         File file = new File(filePath);
         bmp = BitmapFactory.decodeFile(file.getAbsolutePath());
+        int width = bmp.getWidth();
+        int height = bmp.getHeight();
+
+        int size = height > width ? width : height;
         ImageProcessor imageProcessor =
                 new ImageProcessor.Builder()
+                        .add(new ResizeWithCropOrPadOp(size, size))
                         .add(new ResizeOp(224, 224, ResizeOp.ResizeMethod.BILINEAR))
                         .build();
         TensorImage tImage = new TensorImage(DataType.UINT8);
@@ -88,11 +94,9 @@ public class MainActivity extends AppCompatActivity {
             Model model = Model.newInstance(view.getContext());
             Model.Outputs outputs = model.process(inputFeature0);
             TensorBuffer outputFeature0 = outputs.getOutputFeature0AsTensorBuffer();
-            int [] converted = outputFeature0.getIntArray();
-            text = Arrays.toString(converted);
-            for (int i: converted) {
-                Log. d("Main Activity", String.valueOf(i));
-            }
+            float[] converted = outputFeature0.getFloatArray();
+            String text = Arrays.toString(converted);
+
             // Releases model resources if no longer used.
             model.close();
             final TextView helloTextView = (TextView) findViewById(R.id.textView);
