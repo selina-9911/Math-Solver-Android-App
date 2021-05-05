@@ -40,7 +40,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -50,10 +52,12 @@ public class MainActivity extends AppCompatActivity {
 
     Bitmap bmp;
     ByteBuffer byteBuffer;
+    String text;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         // Get file path from Intent and use it to retrieve Bitmap (image to analyze)
         Bundle extras = getIntent().getExtras();
@@ -78,11 +82,14 @@ public class MainActivity extends AppCompatActivity {
             Model.Outputs outputs = model.process(inputFeature0);
             TensorBuffer outputFeature0 = outputs.getOutputFeature0AsTensorBuffer();
             int [] converted = outputFeature0.getIntArray();
+            text = Arrays.toString(converted);
             for (int i: converted) {
                 Log. d("Main Activity", String.valueOf(i));
             }
             // Releases model resources if no longer used.
             model.close();
+            final TextView helloTextView = (TextView) findViewById(R.id.textView);
+            helloTextView.setText(text);
 
 
         } catch(IOException e) {
