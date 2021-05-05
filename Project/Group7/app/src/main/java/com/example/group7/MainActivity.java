@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
             // Releases model resources if no longer used.
             model.close();
 
-            tv.setText(text + "\n" + "\n" + "Predicted:" + symbol);
+            tv.setText(text + "\n" + "\n" + "Predicted: " + symbol);
 
         } catch (IOException e) {
             Log.e("MainActivity", "IOException");
