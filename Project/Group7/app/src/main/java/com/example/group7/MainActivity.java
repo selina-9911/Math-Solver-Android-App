@@ -19,6 +19,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -68,9 +69,11 @@ public class MainActivity extends AppCompatActivity {
         int height = bmp.getHeight();
 
         int size = bmp.getRowBytes() * bmp.getHeight();
-        byteBuffer = ByteBuffer.allocate(size);
+        byteBuffer = ByteBuffer.allocate(3*224*224*4);
         analyzeImage(findViewById(R.id.textView));
     }
+
+
     public void analyzeImage(View view) {
         try {
             // Creates inputs for reference.
