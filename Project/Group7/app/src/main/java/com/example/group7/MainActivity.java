@@ -90,13 +90,14 @@ public class MainActivity extends AppCompatActivity {
             Model.Outputs outputs = model.process(inputFeature0);
             TensorBuffer outputFeature0 = outputs.getOutputFeature0AsTensorBuffer();
             float[] converted = outputFeature0.getFloatArray();
+            String text = Arrays.toString(converted);
             int index = findLargestIndex(converted);
-            String text = matchSymbol(index);
+            String symbol = matchSymbol(index);
 
             // Releases model resources if no longer used.
             model.close();
 
-            tv.setText(text);
+            tv.setText(text + "\n" + "\n" + "Predicted:" + symbol);
 
         } catch (IOException e) {
             Log.e("MainActivity", "IOException");
