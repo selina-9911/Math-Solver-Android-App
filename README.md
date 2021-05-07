@@ -1,4 +1,4 @@
-# Math Solver
+# Math Solver Android App
 
 Team Members: Selina Lin, Frank Sun, George Liu
 
