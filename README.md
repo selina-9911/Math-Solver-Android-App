@@ -1,6 +1,6 @@
 # Math Solver Android App
 
-**Team Members**: Selina Lin, Frank Sun, George Liu
+**Team Members**: Selina Lin, Frank Sun, George Teng
 
 **Screen Shots of the App**
 
